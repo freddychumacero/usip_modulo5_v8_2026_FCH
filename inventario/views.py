@@ -11,7 +11,14 @@ def contact(request, name):
     return HttpResponse(f"Hola {name} bienvenido a la clase de Django")
 
 def categorias(request):
-    categorias = Categoria.objects.all()
+    nombre_filtro = request.GET.get('nombre')
+    
+    if nombre_filtro:
+        categorias = Categoria.objects.filter(nombre__icontains=nombre_filtro)
+    else:
+        categorias = Categoria.objects.all()
+        
     return render(request, 'categorias.html', {
-        "categorias": categorias
+        "categorias": categorias,
+        "filtro_actual": nombre_filtro
     })

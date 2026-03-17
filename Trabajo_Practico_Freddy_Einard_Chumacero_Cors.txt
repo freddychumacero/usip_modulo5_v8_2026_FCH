@@ -1,0 +1,36 @@
+TRABAJO PRÁCTICO
+FREDDY EINARD CHUMACERO CORS
+
+Archivo modificado: `inventario/views.py`
+
+Código de la vista `categorias`:
+
+```python
+from django.shortcuts import render
+from .models import Categoria
+
+def categorias(request):
+    # 1. Capturamos el query param 'nombre' de la petición GET
+    nombre_filtro = request.GET.get('nombre')
+    
+    # 2. Lógica para filtrar el QuerySet
+    if nombre_filtro:
+        # Si existe el parámetro, se filtra la tabla Categoria.
+        # Se utiliza 'icontains' para realizar una búsqueda parcial 
+        # que distinga o no entre mayúsculas y minúsculas.
+        categorias = Categoria.objects.filter(nombre__icontains=nombre_filtro)
+    else:
+        # Si no se provee el parámetro, se retornan todos los elementos.
+        categorias = Categoria.objects.all()
+        
+    return render(request, 'categorias.html', {
+        "categorias": categorias,
+        "filtro_actual": nombre_filtro
+    })
+```
+
+### Lógica Utilizada
+- Se usó `request.GET.get('nombre')` para extraer de manera segura el parámetro enviado en la URL (`.../categorias?nombre=PALABRA_FILTRAR`). Esto previene errores si el parámetro no se encuentra, retornando `None` por defecto.
+- Se verificó la presencia del parámetro mediante una condicional `if nombre_filtro:`.
+- Si el filtro existe, se extraen las categorías utilizando el método `filter()` proporcionado por el ORM de Django. Específicamente, se utiliza el lookup `__icontains` apuntando a la columna `nombre` del modelo `Categoria` (`nombre__icontains=nombre_filtro`). Esto permite coincidencias parciales como "Lact" o "hogar" para encontrar coincidencias dentro la base de datos de manera flexible.
+- Finalmente el query filtrado (o el query con todos los objetos, de lo contrario) se manda al template mediante el método `render`.
